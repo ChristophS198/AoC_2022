@@ -6,7 +6,7 @@
 #include "2/2_sol.cpp"
 #include "3/3_sol.cpp"
 #include "4/4_sol.cpp"
-// #include "5/5_sol.cpp"
+#include "5/5_sol.cpp"
 // #include "6/6_sol.cpp"
 // #include "7/7_sol.cpp"
 // #include "8/8_sol.cpp"
@@ -39,6 +39,10 @@ int main(){
     //Day 4
     std::cout << "Number of fully contained sectinos: " << day_4_1("4/section_list.txt") << std::endl;
     std::cout << "Number of overlapping sections: " << day_4_2("4/section_list.txt") << std::endl;
+
+    //Day 5
+    std::cout << "Top crates using CrateMover 9000: " << day_5_1("5/crate_list.txt") << std::endl;
+    std::cout << "Top crates using CrateMover 9001: " << day_5_2("5/crate_list.txt") << std::endl;
 
     return 0;
 }
