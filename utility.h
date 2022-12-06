@@ -328,6 +328,25 @@ std::vector<std::string> read_string_vec_from_file(const std::string& file_path)
 }
 
 /**
+ * @brief Return the first line of given file
+ * 
+ * @param file_path 
+ * @return std::string first line 
+ */
+std::string read_string_from_file(const std::string& file_path)
+{
+    std::fstream input_file;
+    input_file.open(file_path,std::ios::in);
+    std::string input_line{ "" };
+    if (input_file.is_open())
+    {
+        getline(input_file, input_line);
+        input_file.close();   //close the file object.
+    }
+    return input_line;
+}
+
+/**
  * @brief Get the next number written in a string after a substring
  * 
  * @tparam T type of number that is returned

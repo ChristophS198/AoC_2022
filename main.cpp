@@ -7,7 +7,7 @@
 #include "3/3_sol.cpp"
 #include "4/4_sol.cpp"
 #include "5/5_sol.cpp"
-// #include "6/6_sol.cpp"
+#include "6/6_sol.cpp"
 // #include "7/7_sol.cpp"
 // #include "8/8_sol.cpp"
 // #include "9/9_sol.cpp"
@@ -43,6 +43,13 @@ int main(){
     //Day 5
     std::cout << "Top crates using CrateMover 9000: " << day_5_1("5/crate_list.txt") << std::endl;
     std::cout << "Top crates using CrateMover 9001: " << day_5_2("5/crate_list.txt") << std::endl;
+
+    //Day 6
+    std::cout << "Marker position: " << day_6_1("6/datastream.txt") << std::endl;
+    std::cout << "Message position: " << day_6_2("6/datastream.txt") << std::endl;
+
+    //Day 7
+
 
     return 0;
 }
