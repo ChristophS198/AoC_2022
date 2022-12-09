@@ -10,7 +10,7 @@
 #include "6/6_sol.cpp"
 #include "7/7_sol.cpp"
 #include "8/8_sol.cpp"
-// #include "9/9_sol.cpp"
+#include "9/9_sol.cpp"
 // #include "10/10_sol.cpp"
 // #include "11/11_sol.cpp"
 // #include "12/12_sol.cpp"
@@ -55,6 +55,10 @@ int main(){
     //Day 8
     std::cout << "Visible trees from outside: " << day_8_1("8/tree.txt") << std::endl;
     std::cout << "Size of best file to delete: " << day_8_2("8/tree.txt") << std::endl;
+
+    //Day 9
+    std::cout << "Day 9_1: " << day_9_1("9/motion_moves.txt") << std::endl;
+    std::cout << "Day 9_2: " << day_9_2("9/motion_moves.txt") << std::endl;
 
 
     return 0;
