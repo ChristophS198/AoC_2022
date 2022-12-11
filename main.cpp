@@ -12,7 +12,7 @@
 #include "8/8_sol.cpp"
 #include "9/9_sol.cpp"
 #include "10/10_sol.cpp"
-// #include "11/11_sol.cpp"
+#include "11/11_sol.cpp"
 // #include "12/12_sol.cpp"
 // #include "13/13_sol.cpp"
 // #include "14/14_sol.cpp"
@@ -63,6 +63,10 @@ int main(){
     //Day 10
     std::cout << "Day 10_1: " << day_10_1("10/input.txt") << std::endl;
     day_10_2("10/input.txt", "10/crt_bitmap_out.txt"); 
+
+    //Day 11
+    std::cout << "Day 11_1: " << day_11_1("11/input.txt") << std::endl;
+    std::cout << "Day 11_2: " << day_11_2("11/input.txt") << std::endl;
 
 
     return 0;
