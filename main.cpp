@@ -13,8 +13,8 @@
 // #include "9/9_sol.cpp"
 // #include "10/10_sol.cpp"
 // #include "11/11_sol.cpp"
-#include "12/12_sol.cpp"
-// #include "13/13_sol.cpp"
+// #include "12/12_sol.cpp"
+#include "13/13_sol.cpp"
 // #include "14/14_sol.cpp"
 // #include "15/15_sol.cpp"
 // #include "16/16_sol.cpp"
@@ -68,9 +68,13 @@ int main(){
     // std::cout << "Day 11_1: " << day_11_1("11/input.txt") << std::endl;
     // std::cout << "Day 11_2: " << day_11_2("11/input.txt") << std::endl;
 
-    //Day 12
-    std::cout << "Day 12_1: " << day_12_1("12/input.txt") << std::endl;
-    std::cout << "Day 12_2: " << day_12_2("12/input.txt") << std::endl;
+    // //Day 12
+    // std::cout << "Day 12_1: " << day_12_1("12/input.txt") << std::endl;
+    // std::cout << "Day 12_2: " << day_12_2("12/input.txt") << std::endl;
+
+    //Day 13
+    std::cout << "Day 13_1: " << day_13_1("13/input.txt") << std::endl;
+    std::cout << "Day 13_2: " << day_13_2("13/input.txt") << std::endl;
 
 
     return 0;
