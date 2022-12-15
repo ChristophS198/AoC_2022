@@ -174,8 +174,4 @@ To find somewhere safe to stand, you'll need to simulate falling sand until a un
 
 Using your scan, simulate the falling sand until the source of the sand becomes blocked. How many units of sand come to rest?
 
-Answer:
-
-Although it hasn't changed, you can still get your puzzle input.
-
-You can also [Shareon Twitter Mastodon] this puzzle.
+Answer: 26831
