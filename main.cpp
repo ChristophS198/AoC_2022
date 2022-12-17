@@ -15,9 +15,9 @@
 // #include "11/11_sol.cpp"
 // #include "12/12_sol.cpp"
 // #include "13/13_sol.cpp"
-#include "14/14_sol.cpp"
+// #include "14/14_sol.cpp"
 // #include "15/15_sol.cpp"
-// #include "16/16_sol.cpp"
+#include "16/16_sol.cpp"
 // #include "17/17_sol.cpp"
 // #include "19/19_sol.cpp"
 // #include "20/20_sol.cpp"
@@ -76,9 +76,17 @@ int main(){
     // std::cout << "Day 13_1: " << day_13_1("13/input.txt") << std::endl;
     // std::cout << "Day 13_2: " << day_13_2("13/input.txt") << std::endl;
 
-    //Day 14
-    std::cout << "Day 14_1: " << day_14_1("14/input.txt") << std::endl;
-    std::cout << "Day 14_2: " << day_14_2("14/input.txt") << std::endl;
+    // //Day 14
+    // std::cout << "Day 14_1: " << day_14_1("14/input.txt") << std::endl;
+    // std::cout << "Day 14_2: " << day_14_2("14/input.txt") << std::endl;
+
+    // //Day 15
+    // std::cout << "Day 15_1: " << day_15_1("15/input.txt") << std::endl;
+    // std::cout << "Day 15_2: " << day_15_2("15/input.txt") << std::endl;
+
+    //Day 16
+    std::cout << "Day 16_1: " << day_16_1("16/input.txt") << std::endl;
+    std::cout << "Day 16_2: " << day_16_2("16/input.txt") << std::endl;
 
 
     return 0;
