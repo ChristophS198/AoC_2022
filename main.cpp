@@ -87,7 +87,6 @@ int main(){
     //Day 16
     std::cout << "Day 16_1: " << day_16_1("16/input.txt") << std::endl;
     std::cout << "Day 16_2: " << day_16_2("16/input.txt") << std::endl;
-    // too low: 1770
 
 
     return 0;

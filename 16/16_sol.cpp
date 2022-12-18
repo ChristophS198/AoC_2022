@@ -57,10 +57,7 @@ std::uint64_t day_16_1(const std::string &file_path)
     std::map<VId, RedValve> dist_map = get_reduced_dist_mat(v_map, int_valves, 0u);
     std::uint64_t max_press = get_max_pressure_release(dist_map, MINUTES);
     auto t2 = std::chrono::high_resolution_clock::now();
-    /* Getting number of milliseconds as an integer. */
     auto ms_int = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1);
-
-    /* Getting number of milliseconds as a double. */
     std::chrono::duration<double, std::milli> ms_double = t2 - t1;
 
     std::cout << ms_int.count() << "ms\n";
@@ -76,10 +73,7 @@ std::uint64_t day_16_2(const std::string &file_path)
     std::map<VId, RedValve> dist_map = get_reduced_dist_mat(v_map, int_valves, 0u);
     std::uint64_t max_press = comb_approach(dist_map, MINUTES - EL_TRAIN_TIME);
     auto t2 = std::chrono::high_resolution_clock::now();
-    /* Getting number of milliseconds as an integer. */
     auto ms_int = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1);
-
-    /* Getting number of milliseconds as a double. */
     std::chrono::duration<double, std::milli> ms_double = t2 - t1;
 
     std::cout << ms_int.count() << "ms\n";
@@ -90,10 +84,11 @@ std::uint64_t day_16_2(const std::string &file_path)
 
 std::uint64_t get_pressure_rec_2(std::map<VId, RedValve> &v_map, const std::uint16_t cur_v, const std::pair<VId, VDist> travel_v, const VTime time_left, const std::uint64_t press_rate, const std::uint64_t cur_press_vol)
 {
-    if (time_left < 24) // we need at least three time slots to go, open another valve and wait for its first pressure release
+    if (time_left < 3) // we need at least three time slots to go, open another valve and wait for its first pressure release
     {
-        auto v2 = time_left - static_cast<VTime>(travel_v.second+1) > 0 ? time_left - static_cast<VTime>(travel_v.second+1) : 0;
-        return cur_press_vol + (time_left * press_rate) + v_map.at(travel_v.first).flow_rate * v2;
+        auto v2 = time_left - static_cast<VTime>(travel_v.second) > 0 ? time_left - static_cast<VTime>(travel_v.second) : 0;
+        auto tmp = cur_press_vol + (time_left * press_rate) + v_map.at(travel_v.first).flow_rate * v2;
+        return tmp;
     }
     if (time_left < 0) throw std::runtime_error("Negative time should not be possible!");
     else
@@ -103,7 +98,7 @@ std::uint64_t get_pressure_rec_2(std::map<VId, RedValve> &v_map, const std::uint
         std::uint64_t max_press{ 0u };
         if (succ_pairs_short.empty())
         {
-            auto v2 = time_left - static_cast<VTime>(travel_v.second+1) > 0 ? time_left - static_cast<VTime>(travel_v.second+1) : 0;
+            auto v2 = time_left - static_cast<VTime>(travel_v.second) > 0 ? time_left - static_cast<VTime>(travel_v.second) : 0;
             return cur_press_vol + (time_left * press_rate) + v_map.at(travel_v.first).flow_rate * v2;
         }
 
@@ -111,35 +106,34 @@ std::uint64_t get_pressure_rec_2(std::map<VId, RedValve> &v_map, const std::uint
         {
             std::uint64_t tmp{ 0u };
             
-
-            if (time_left < static_cast<VTime>(elem.second) + 2) 
+            if (time_left < static_cast<VTime>(elem.second) + 1) 
             { // we need at least the time to travel + open this valve to seee a change in the overall release
-                auto v2 = time_left - static_cast<VTime>(travel_v.second+1) > 0 ? time_left - static_cast<VTime>(travel_v.second+1) : 0;
+                auto v2 = time_left - static_cast<VTime>(travel_v.second) > 0 ? time_left - static_cast<VTime>(travel_v.second) : 0;
                 tmp = cur_press_vol + (time_left * press_rate) + v_map.at(travel_v.first).flow_rate * v2;
             }
             else
             {
                 auto &near_v = elem.second < travel_v.second ? elem : travel_v; // check which valve is nearer
                 auto &dist_v = elem.second < travel_v.second ? travel_v : elem;
-                VTime dt = near_v.second + 1; // include time for opening valve
-                if (dt == 1) // for the special case of hitting both valves at the same time, we do not increase dt by 1 (for opening time is already included)
-                {
-                    dt = 0;
-                }
+
+                VTime dt = near_v.second; 
 
                 std::uint64_t new_press_vol = cur_press_vol + dt * press_rate; // Increase released pressure value by time needed to travel to nearer valve
                 std::uint64_t new_press_rate = press_rate + v_map[near_v.first].flow_rate;
                 std::map<VId, RedValve> new_map{ v_map };
                 remove_valve_from_succ_lists(new_map, elem.first); // We do not want to re-visit this valve, since it is already open 
-                new_map.at(near_v.first).is_open = true;
                 std::pair<VId, VDist> second_v{ dist_v.first, dist_v.second - dt };
-                if (near_v.second == dist_v.second) // open both valves, if we hit them at the same time
-                {
-                    second_v.second == 0; 
-                    new_press_rate += v_map[dist_v.first].flow_rate;
-                    new_map.at(dist_v.first).is_open = true;
-                }
+
                 tmp = get_pressure_rec_2(new_map, near_v.first, second_v, time_left - dt, new_press_rate, new_press_vol);
+                
+                // Was not neccessary, but I'm not sure if the order of starting new recursion might
+                // impact the result (for the case of both reaching a valve at the same time)
+                // if (near_v.second == dist_v.second)
+                // {
+                //     second_v.first = near_v.first;
+                //     auto tmp2 = get_pressure_rec_2(new_map, dist_v.first, second_v, time_left - dt, new_press_rate, new_press_vol);
+                //     tmp = std::max(tmp, tmp2);
+                // }
             }
 
             max_press = std::max(tmp, max_press);
@@ -151,36 +145,33 @@ std::uint64_t get_pressure_rec_2(std::map<VId, RedValve> &v_map, const std::uint
 std::uint64_t comb_approach(std::map<VId, RedValve> &v_map, VTime time_left)
 {
     VId start_id{ 0u };
-    std::set<std::pair<VId, VDist>> valves;
+    std::vector<std::pair<VId, VDist>> valves;
     for (const auto &elem : v_map.at(start_id).successors)
     {
-        valves.insert(elem);
+        valves.push_back(elem);
     }
-    std::set<std::pair<VId, VDist>> closed_valves_second{ valves };
+    std::vector<std::pair<VId, VDist>> closed_valves_second{ valves };
     std::uint64_t max_press{ 0u };
     v_map.erase(start_id);
     
-    for (auto first_v : valves)
+    for (size_t i=0; i<valves.size(); ++i)
     {
-        // std::set<VId> closed_valves{ valves };
-        closed_valves_second.erase(first_v);
-        for (auto second_v : closed_valves_second)
+        auto first_v = valves[i];
+        for (size_t j=i+1; j<valves.size(); ++j)
         {
+            auto second_v = valves[j];
             auto &near_v = first_v.second < second_v.second ? first_v : second_v;
             auto &dist_v = first_v.second < second_v.second ? second_v : first_v;
             std::uint64_t press_vol = 0;
             std::uint64_t press_rate = v_map[near_v.first].flow_rate;
             VTime dt = near_v.second; 
-            if (near_v.second == dist_v.second) // for the special case of hitting both valves at the same time, we do not increase dt by 1 (for opening time is already included)
-            {
-                dt = near_v.second;
-            }
 
             std::map<VId, RedValve> new_map{ v_map };
             remove_valve_from_succ_lists(new_map, near_v.first); // We do not want to re-visit this valve, since it is already open 
             remove_valve_from_succ_lists(new_map, dist_v.first); // We do not want to re-visit this valve, since it is already open 
             std::pair<VId, VDist> second_copy{ dist_v.first, dist_v.second - dt }; // reduce distance to distant valve
-            std::uint64_t tmp = get_pressure_rec_2(new_map, near_v.first, second_copy, time_left - dt - 1, press_rate, press_vol);
+
+            std::uint64_t tmp = get_pressure_rec_2(new_map, near_v.first, second_copy, time_left - dt, press_rate, press_vol);
             
             max_press = std::max(tmp, max_press);
         }
@@ -210,18 +201,17 @@ std::uint64_t get_pressure_rec(std::map<VId, RedValve> &v_map, const std::uint16
             auto &succ_valve = v_map.at(elem.first);
             std::uint64_t tmp{ 0u };
             
-            if (time_left < static_cast<VTime>(elem.second)+2) 
+            if (time_left < static_cast<VTime>(elem.second)+1) 
             { // we need at least the time to travel + open this valve to seee a change in the overall release
                 tmp = cur_press_vol + time_left * press_rate;
             }
             else
             {
                 std::uint64_t new_press_vol = cur_press_vol + press_rate * elem.second; // Increase released pressure value by time needed to travel to this valve
-                new_press_vol += press_rate; // Increase released pressure value, since opening takes another minute
                 std::uint64_t new_rate = press_rate + succ_valve.flow_rate;
                 std::map<VId, RedValve> new_map{ v_map };
                 remove_valve_from_succ_lists(new_map, elem.first); // We do not want to re-visit this valve, since it is already open 
-                tmp = get_pressure_rec(new_map, elem.first, time_left-1-elem.second, new_rate, new_press_vol);
+                tmp = get_pressure_rec(new_map, elem.first, time_left-elem.second, new_rate, new_press_vol);
             }
 
             max_press = std::max(tmp, max_press);
@@ -248,7 +238,7 @@ std::uint64_t get_max_pressure_release(std::map<VId, RedValve> &v_map, VTime tim
         std::uint64_t new_rate = succ_valve.flow_rate;
         std::map<VId, RedValve> new_map{ v_map };
         remove_valve_from_succ_lists(new_map, succ.first); // We do not want to re-visit this valve, since it is already open 
-        tmp = get_pressure_rec(new_map, succ.first, time_left-1-static_cast<VTime>(succ.second), new_rate, 0u);
+        tmp = get_pressure_rec(new_map, succ.first, time_left-static_cast<VTime>(succ.second), new_rate, 0u);
         
         max_press = std::max(max_press,tmp);
     }
@@ -282,7 +272,7 @@ std::map<VId, RedValve> get_reduced_dist_mat(const std::map<VId, Valve> &valve_m
         for (const auto &v : int_valves)
         {
             if (shortest_d.at(v) == 0) continue;
-            new_v.successors.push_back({ v,shortest_d.at(v) });
+            new_v.successors.push_back({ v,shortest_d.at(v) + 1}); // +1 so opening is already included in distance
         }
         dist_map[cur_v_id] = new_v;
     }
@@ -292,7 +282,7 @@ std::map<VId, RedValve> get_reduced_dist_mat(const std::map<VId, Valve> &valve_m
     RedValve new_v{ false, valve_map.at(0).flow_rate, {} };
     for (const auto &v : int_valves)
     {
-        new_v.successors.push_back({ v,shortest_d.at(v) });
+        new_v.successors.push_back({ v,shortest_d.at(v) + 1}); // +1 so opening is already included in distance
     }
     dist_map[0] = new_v;
 
