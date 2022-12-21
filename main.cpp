@@ -17,8 +17,8 @@
 // #include "13/13_sol.cpp"
 // #include "14/14_sol.cpp"
 // #include "15/15_sol.cpp"
-#include "16/16_sol.cpp"
-// #include "17/17_sol.cpp"
+// #include "16/16_sol.cpp"
+#include "17/17_sol.cpp"
 // #include "19/19_sol.cpp"
 // #include "20/20_sol.cpp"
 // #include "21/21_sol.cpp"
@@ -84,10 +84,16 @@ int main(){
     // std::cout << "Day 15_1: " << day_15_1("15/input.txt") << std::endl;
     // std::cout << "Day 15_2: " << day_15_2("15/input.txt") << std::endl;
 
-    //Day 16
-    std::cout << "Day 16_1: " << day_16_1("16/input.txt") << std::endl;
-    std::cout << "Day 16_2: " << day_16_2("16/input.txt") << std::endl;
+    // //Day 16
+    // std::cout << "Day 16_1: " << day_16_1("16/input.txt") << std::endl;
+    // std::cout << "Day 16_2: " << day_16_2("16/input.txt") << std::endl;
 
+    //Day 17
+    std::cout << "Day 17_1: " << day_17_1("17/input.txt") << std::endl;
+    std::cout << "Day 17_2: " << day_17_2("17/input.txt") << std::endl;
+
+    // Es kann sein, dass ein Stein am Rand vorbeifällt -> ich muss immer das 
+    // komplette Feld von der niedrigsten Höhe bis zur höchsten Stelle tracken
 
     return 0;
 }
