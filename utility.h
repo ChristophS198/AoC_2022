@@ -3,20 +3,33 @@
 #include <string>
 #include <iostream>
 #include <fstream>
+#include <assert.h>
 
 
 template<typename T>
 struct Point3D
 {
+    using type = T;
     T x;
     T y;
     T z;
     Point3D(const T& x1, const T& y1, const T& z1) : x{x1}, y {y1}, z{z1} {};
+    Point3D(const std::vector<T>& v);
     Point3D() : x{}, y{}, z{} {};
     bool operator<(const Point3D& other) const;
     bool operator==(const Point3D& other) const;
     T dist_squ() const;
 };
+
+template<typename T>
+Point3D<T>::Point3D(const std::vector<T>& v)
+{
+    assert(v.size() == 3u);
+    x = v[0];
+    y = v[1];
+    z = v[2];
+}
+
 
 template<typename T>
 T Point3D<T>::dist_squ() const
