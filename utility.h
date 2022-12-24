@@ -209,7 +209,7 @@ template<typename T>
 T parse_string_to_number(const std::string& in_str)
 {
     std::vector<char> c_vec{};
-    int sign{1}; // is set to -1 if a negative sign '-' is read at the first position
+    int sign{ 1 }; // is set to -1 if a negative sign '-' is read at the first position
     for (const auto& c : in_str)
     {
         if (c_vec.empty() && c == '-')
@@ -263,9 +263,11 @@ std::vector<T> read_numbers_from_file(const std::string& file_path)
     std::vector<T> number_vec{};
     std::fstream input_file;
     input_file.open(file_path,std::ios::in);
-    if (input_file.is_open()){
+    if (input_file.is_open())
+    {
         std::string input_line;
-        while(getline(input_file, input_line)){  //read data from file object and put it into string.
+        while(getline(input_file, input_line))
+        {  
             std::vector<T> num_in_line = parse_string_to_number_vec<T>(input_line);
             number_vec.insert(number_vec.end(),num_in_line.begin(), num_in_line.end());
         }
