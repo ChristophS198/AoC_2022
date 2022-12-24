@@ -361,12 +361,14 @@ std::vector<std::string> read_string_vec_from_file(const std::string& file_path)
     std::vector<std::string> string_vec{};
     std::fstream input_file;
     input_file.open(file_path,std::ios::in);
-    if (input_file.is_open()){
+    if (input_file.is_open())
+    {
         std::string input_line;
-        while(getline(input_file, input_line)){  //read data from file object and put it into string.
+        while(getline(input_file, input_line))
+        {  
             string_vec.push_back(input_line);
         }
-        input_file.close();   //close the file object.
+        input_file.close();  
     }
     return string_vec;
 }

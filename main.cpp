@@ -21,8 +21,8 @@
 // #include "17/17_sol.cpp"
 // #include "18/18_sol.cpp"
 // #include "19/19_sol.cpp"
-#include "20/20_sol.cpp"
-// #include "21/21_sol.cpp"
+// #include "20/20_sol.cpp"
+#include "21/21_sol.cpp"
 
 int main(){
     // // Day 1
@@ -101,9 +101,13 @@ int main(){
     // std::cout << "Day 19_1: " << day_19_1("19/input.txt") << std::endl;
     // std::cout << "Day 19_2: " << day_19_2("19/input.txt") << std::endl; // should finish in about 20s
 
-    // Day 20
-    std::cout << "Day 20_1: " << day_20_1("20/input.txt") << std::endl;
-    std::cout << "Day 20_2: " << day_20_2("20/input.txt") << std::endl;
+    // // Day 20
+    // std::cout << "Day 20_1: " << day_20_1("20/input.txt") << std::endl;
+    // std::cout << "Day 20_2: " << day_20_2("20/input.txt") << std::endl;
+
+    // Day 21
+    std::cout << "Day 21_1: " << day_21_1("21/input.txt") << std::endl;
+    std::cout << "Day 21_2: " << day_21_2("21/input.txt") << std::endl;
 
     return 0;
 }
