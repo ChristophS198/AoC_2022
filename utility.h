@@ -4,7 +4,7 @@
 #include <iostream>
 #include <fstream>
 #include <assert.h>
-
+#include <type_traits>
 
 template<typename T>
 struct Point3D
@@ -250,6 +250,72 @@ T parse_string_to_number(const std::string& in_str)
 
 
 /**
+ * @brief Searches input string for the next number after position start 
+ * and returns the position and length of the next number found (or npos if not found)
+ * Signs ('+','-') are only considered if a signed data type T is used!
+ * 
+ * @tparam T 
+ * @param in_str 
+ * @param start starting position for the search of next number
+ * @param num returned number value
+ * @return std::pair<size_t, uint16_t> position of first char of number + number of chars relevant for this number (signs included)  
+ */
+template<typename T>
+std::pair<size_t, uint16_t> parse_next_number_in_str(const std::string& in_str, size_t start, T &num)
+{
+    std::vector<char> c_vec{};
+    int sign{ 1 }; // is set to -1 if a negative sign '-' is read at the first position
+    uint16_t num_len{ 0u };
+    size_t start_pos{ start };
+    for (size_t pos=start; pos<in_str.length(); ++pos)
+    {
+        char c = in_str.at(pos);
+        if (c_vec.empty() && c == '-' && std::is_signed<T>::value)
+        {
+            sign = -1;
+            ++num_len;
+            start_pos = pos;
+            continue;
+        }
+        if (c_vec.empty() && c == '+' && std::is_signed<T>::value)
+        {
+            sign = 1;
+            start_pos = pos;
+            ++num_len;
+            continue;
+        }
+        if (std::isdigit(static_cast<unsigned char>(c)))
+        {
+            ++num_len;
+            if (c_vec.empty())
+            {
+                start_pos = pos;                
+            }
+            c_vec.push_back(c);
+        }
+        else
+        {
+            if (c_vec.size() > 0u)
+            {
+                num = sign * convert_to_num<T>(c_vec);
+                return { start_pos, num_len };
+            }
+            sign = 1;
+            c_vec.clear();
+        }
+    }
+    if (c_vec.size() > 0u)
+    {
+        num = sign * convert_to_num<T>(c_vec);
+        return { start_pos, num_len };
+    }
+    else 
+    {
+        return { std::string::npos, 0u };
+    }
+}
+
+/**
  * @brief Reads numbers from a file and interprets each non-consecutive digit as a separate number
  * Each number is appended to the output vector (one-dimensional)
  * 
@@ -339,9 +405,11 @@ std::vector<std::vector<char>> read_2d_vec_from_file(const std::string& file_pat
     std::vector<std::vector<char>> char_vec_2d{};
     std::fstream input_file;
     input_file.open(file_path,std::ios::in);
-    if (input_file.is_open()){
+    if (input_file.is_open())
+    {
         std::string input_line;
-        while(getline(input_file, input_line)){  //read data from file object and put it into string.
+        while(getline(input_file, input_line))
+        {  
             char_vec_2d.push_back(std::vector<char>(input_line.begin(), input_line.end()));
         }
         input_file.close();   //close the file object.
