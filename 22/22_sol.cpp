@@ -1,3 +1,14 @@
+/**
+The solution for part 2 only works for cubes that have the following layout:
+  AABB
+  AABB
+  CC
+  CC
+EEDD
+FF
+Each cube face must also have dimenstion 50x50!
+ * 
+ */
 #include <string>
 #include <map>
 
@@ -35,6 +46,7 @@ struct State22
     uint32_t row;
     uint32_t col;
     MFacing facing;
+    char cube_face; // denotes on whiche cube face we are on: A, B, ..., F
 };
  
 struct LinearFunc
@@ -52,31 +64,36 @@ struct Transformation
     State22 operator()(State22 s1) 
     { 
         State22 new_state;
-        if (facing_offset % 2)
+        if (facing_offset % 2 == 0)
         {
             new_state.row = row_trafo(s1.row);
-            new_state.col = row_trafo(s1.col);
-            new_state.facing = static_cast<MFacing>((static_cast<uint8_t>(s1.facing)+facing_offset)%4);
+            new_state.col = col_trafo(s1.col);
         }
+        else 
         {
             new_state.row = row_trafo(s1.col);
-            new_state.col = row_trafo(s1.row);
-            new_state.facing = static_cast<MFacing>((static_cast<uint8_t>(s1.facing)+facing_offset)%4);
+            new_state.col = col_trafo(s1.row);
         }
+        new_state.facing = static_cast<MFacing>((static_cast<uint8_t>(s1.facing)+facing_offset)%4);
+        new_state.cube_face = s1.cube_face; // is set here to old face
         return new_state;
     }
 };
 
 using MMap = std::vector<std::vector<char>>; // Monkey Map is a 2-D vector
+using CubeTrafos = std::map<std::pair<char, char>, Transformation>;
 
 std::pair<MMap, std::vector<Instruction>> get_data_in(const std::string &file_path);
 std::vector<Instruction> parse_instructions(const std::string &ins_string);
 void resize_monkey_map(MMap &monkey_map, const size_t max_len);
 State22 get_init_state(const MMap &monkey_map);
-State22 execute_instructions(const MMap &monkey_map, const std::vector<Instruction> ins_vec, const State22 init_state);
-State22 do_single_instruction(const MMap &monkey_map, const Instruction ins, const State22 cur_state);
+State22 execute_instructions(const MMap &monkey_map, const std::vector<Instruction> ins_vec, const State22 init_state, bool do_cube_wrapping=false);
+State22 do_single_instruction(const MMap &monkey_map, const Instruction ins, const State22 cur_state, const CubeTrafos &trafos, bool do_cube_wrapping=false);
 bool do_wrap_around(const MMap &monkey_map, State22 &cur_state);
-std::map<std::pair<char, char>, Transformation> get_transformations();
+bool do_cube_wrapping(const MMap &monkey_map, const CubeTrafos &trafos, State22 &cur_state);
+char get_cube_face(const State22 &cur_state);
+char get_nxt_cube_face(const State22 &cur_state);
+CubeTrafos get_transformations();
 
 int32_t day_22_1(const std::string &file_path)
 {
@@ -93,12 +110,12 @@ int32_t day_22_2(const std::string &file_path)
     std::pair<MMap, std::vector<Instruction>> data = get_data_in(file_path);
     State22 init_state = get_init_state(data.first);
 
-    State22 end_state = execute_instructions(data.first, data.second, init_state);
+    State22 end_state = execute_instructions(data.first, data.second, init_state, true);
 
     return 1000u * end_state.row + 4u * end_state.col + static_cast<uint32_t>(end_state.facing);
 }
 
-State22 do_single_instruction(const MMap &monkey_map, const Instruction ins, const State22 cur_state)
+State22 do_single_instruction(const MMap &monkey_map, const Instruction ins, const State22 cur_state, const CubeTrafos &trafos, bool is_cube_wrapping)
 {
     State22 new_state{ cur_state };
     State22 tmp_state{ };
@@ -107,7 +124,7 @@ State22 do_single_instruction(const MMap &monkey_map, const Instruction ins, con
 
     for (auto steps=0u; steps<ins.steps; ++steps)
     {
-        switch (cur_state.facing)
+        switch (new_state.facing)
         {
         case MFacing::Left:
             --col;
@@ -122,11 +139,20 @@ State22 do_single_instruction(const MMap &monkey_map, const Instruction ins, con
             ++row;
             break;
         }
+        bool wrap_successful{ false };
         switch (monkey_map.at(row).at(col))
         {
         case NO_MAP: /*We would enter a empty tile and need to wrap around if there is no Wall on the other side*/
             tmp_state = new_state;
-            if (false == do_wrap_around(monkey_map, tmp_state))
+            if (is_cube_wrapping) 
+            {
+                wrap_successful = do_cube_wrapping(monkey_map, trafos, tmp_state);
+            }
+            else 
+            {
+                wrap_successful = do_wrap_around(monkey_map, tmp_state); 
+            }
+            if (false == wrap_successful)
             {
                 steps = ins.steps; // If we cannot wrap around stop moving
             }
@@ -146,10 +172,12 @@ State22 do_single_instruction(const MMap &monkey_map, const Instruction ins, con
             break;
         }
 
+        // set new cube face (is done after each step)
+        new_state.cube_face = get_cube_face(new_state);
     }
 
     // set new heading 
-    uint8_t old_facing = static_cast<uint8_t>(cur_state.facing);
+    uint8_t old_facing = static_cast<uint8_t>(new_state.facing);
     switch (ins.dir)
     {
     case MDir::Left:
@@ -163,7 +191,100 @@ State22 do_single_instruction(const MMap &monkey_map, const Instruction ins, con
         break;
     }
 
+
     return new_state;
+}
+
+bool do_cube_wrapping(const MMap &monkey_map, const CubeTrafos &trafos, State22 &cur_state)
+{
+    char cur_face = get_cube_face(cur_state);
+    char nxt_face = get_nxt_cube_face(cur_state);
+
+    Transformation trafo = trafos.at({ cur_face, nxt_face });
+    State22 new_state = trafo(cur_state);
+
+    if (monkey_map.at(new_state.row).at(new_state.col) == FREE)
+    {
+        cur_state = new_state;
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
+/* In case of cube transitions: Provides new cube face based on current cube face and our facing direction
+Cube faces for a smaller 2x2 map (we have 50x50):
+  AABB
+  AABB
+  CC
+  CC
+EEDD
+FF
+*/
+char get_nxt_cube_face(const State22 &cur_state)
+{
+    switch (cur_state.cube_face)
+    {
+    case 'A':
+        if (cur_state.facing == MFacing::Left) return 'E'; 
+        if (cur_state.facing == MFacing::Up) return 'F'; 
+        else throw std::runtime_error("A: Normal transition, no cube wrapping!"); 
+        break;
+    case 'B':
+        if (cur_state.facing == MFacing::Up) return 'F'; 
+        if (cur_state.facing == MFacing::Right) return 'D'; 
+        if (cur_state.facing == MFacing::Down) return 'C'; 
+        else throw std::runtime_error("B: Normal transition, no cube wrapping!"); 
+        break;
+    case 'C':
+        if (cur_state.facing == MFacing::Left) return 'E'; 
+        if (cur_state.facing == MFacing::Right) return 'B'; 
+        else throw std::runtime_error("C: Normal transition, no cube wrapping!"); 
+        break;
+    case 'D':
+        if (cur_state.facing == MFacing::Right) return 'B'; 
+        if (cur_state.facing == MFacing::Down) return 'F'; 
+        else throw std::runtime_error("A: Normal transition, no cube wrapping!"); 
+        break;
+    case 'E':
+        if (cur_state.facing == MFacing::Up) return 'C'; 
+        if (cur_state.facing == MFacing::Left) return 'A'; 
+        else throw std::runtime_error("B: Normal transition, no cube wrapping!"); 
+        break;
+    case 'F':
+        if (cur_state.facing == MFacing::Left) return 'A'; 
+        if (cur_state.facing == MFacing::Right) return 'D'; 
+        if (cur_state.facing == MFacing::Down) return 'B'; 
+        else throw std::runtime_error("B: Normal transition, no cube wrapping!"); 
+        break;
+    default:
+        throw std::runtime_error("Unknown cube facing!");
+        break;
+    }
+}
+
+/*
+Cube faces for a smaller 2x2 map (we have 50x50):
+  AABB
+  AABB
+  CC
+  CC
+EEDD
+FF
+The original map is 50x50 although i appended NO_MAP tiles at the upper, lower, left and right
+end so we have no issues with out of bounds errors -> 
+*/
+char get_cube_face(const State22 &cur_state)
+{
+    if (cur_state.row < 51 && cur_state.col < 101) return 'A';
+    if (cur_state.row < 51 && cur_state.col >= 101) return 'B';
+    if (cur_state.row >= 51 && cur_state.row < 101) return 'C';
+    if (cur_state.row >= 101 && cur_state.row < 151 && cur_state.col >= 51) return 'D';
+    if (cur_state.row >= 101 && cur_state.row < 151 && cur_state.col < 51) return 'E';
+    if (cur_state.row >= 151) return 'F';
+    throw std::runtime_error("Invalid Position! Row: " + std::to_string(cur_state.row) + ", Col: " + std::to_string(cur_state.col));
 }
 
 bool do_wrap_around(const MMap &monkey_map, State22 &cur_state)
@@ -215,24 +336,36 @@ bool do_wrap_around(const MMap &monkey_map, State22 &cur_state)
     }
 }
 
-std::map<std::pair<char, char>, Transformation> get_transformations()
+// hardcoded transformations for my! input map
+CubeTrafos get_transformations()
 {
-    std::map<std::pair<char, char>, Transformation> t_map;
+    CubeTrafos t_map;
     
-    t_map[{ 'B', 'C' }] = Transformation{ { 1,-50 }, { 0,100 }, 1 };
-    t_map[{ 'C', 'B' }] = Transformation{ { 0, 50 }, { 1,50  }, 3 };
-    t_map[{ 'B', 'D' }] = Transformation{ { -1,100 }, { 0,100 }, 2 };
-    t_map[{ 'D', 'B' }] = Transformation{ { 0, 50 }, { 1,150  }, 2 };    
-    t_map[{ 'B', 'F' }] = Transformation{ { -1,300 }, { 0,100 }, 3 };
-    t_map[{ 'F', 'B' }] = Transformation{ { 0, 0 }, { -1,300  }, 1 };
+    t_map[{ 'B', 'C' }] = Transformation{ {  1,-50 }, {  0, 100 }, 1 };
+    t_map[{ 'C', 'B' }] = Transformation{ {  0, 50 }, {  1,  50 }, 3 };
+    t_map[{ 'B', 'D' }] = Transformation{ { -1,151 }, {  0, 100 }, 2 };
+    t_map[{ 'D', 'B' }] = Transformation{ { -1,151 }, {  0, 150 }, 2 };
+    t_map[{ 'B', 'F' }] = Transformation{ {  0,200 }, {  1,-100 }, 0 };
+    t_map[{ 'F', 'B' }] = Transformation{ {  0,  1 }, {  1, 100 }, 0 };
+    t_map[{ 'E', 'C' }] = Transformation{ {  1, 50 }, {  0,  51 }, 1 };
+    t_map[{ 'C', 'E' }] = Transformation{ {  0,101 }, {  1, -50 }, 3 };
+    t_map[{ 'E', 'A' }] = Transformation{ { -1,151 }, {  0,  51 }, 2 };
+    t_map[{ 'A', 'E' }] = Transformation{ { -1,151 }, {  0,   1 }, 2 };
+    t_map[{ 'F', 'A' }] = Transformation{ {  0,  1 }, {  1,-100 }, 3 };
+    t_map[{ 'A', 'F' }] = Transformation{ {  1,100 }, {  0,   1 }, 1 };
+    t_map[{ 'D', 'F' }] = Transformation{ {  1,100 }, {  0,  50 }, 1 };
+    t_map[{ 'F', 'D' }] = Transformation{ {  0,150 }, {  1,-100 }, 3 };
+
+    return t_map;
 }
 
-State22 execute_instructions(const MMap &monkey_map, const std::vector<Instruction> ins_vec, const State22 init_state)
+State22 execute_instructions(const MMap &monkey_map, const std::vector<Instruction> ins_vec, const State22 init_state, bool do_cube_wrapping)
 {
     State22 cur_state{ init_state };
+    CubeTrafos cube_trafos = get_transformations();
     for (const auto &ins : ins_vec)
     {
-        cur_state = do_single_instruction(monkey_map, ins, cur_state);
+        cur_state = do_single_instruction(monkey_map, ins, cur_state, cube_trafos, do_cube_wrapping);
     }
     return cur_state;
 }
@@ -249,7 +382,7 @@ State22 get_init_state(const MMap &monkey_map)
         row = pos / row_len;
         col = pos - row * row_len;
     }
-    return State22{ row, col, MFacing::Right };
+    return State22{ row, col, MFacing::Right , 'A'};
 }
 
 std::vector<Instruction> parse_instructions(const std::string &ins_string)

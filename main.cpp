@@ -114,7 +114,7 @@ int main(){
     // std::cout << "Day 21_2: " << day_21_2("21/input.txt") << std::endl;
 
     // Day 22
-    std::cout << "Day 22_1: " << day_22_1("22/input.txt") << std::endl;
+    // std::cout << "Day 22_1: " << day_22_1("22/input.txt") << std::endl;
     std::cout << "Day 22_2: " << day_22_2("22/input.txt") << std::endl;
 /*
     // Day 23
