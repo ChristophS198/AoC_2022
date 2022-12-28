@@ -84,27 +84,16 @@ int32_t day_24_2(const std::string &file_path)
     std::pair<EState, EState> start_end_pts = get_start_end_pts(comb_fields.at(0));
 
     EState start = start_end_pts.first;
+    start.steps = 0u;
     EState end = start_end_pts.second;
-    // std::uint16_t min_steps = get_shortest_path_dfs(comb_fields, 200, start, end.pos);
+
     std::uint16_t min_steps = get_shortest_path_bfs(comb_fields, start, end.pos);
-    std::cout << "Min steps: " << min_steps << std::endl;
     end.steps = min_steps;
     min_steps = get_shortest_path_bfs(comb_fields, end, start.pos);
-    std::cout << "Min steps: " << min_steps << std::endl;
     start.steps = min_steps;
     min_steps = get_shortest_path_bfs(comb_fields, start, end.pos);
-    std::cout << "Min steps: " << min_steps << std::endl;
 
-    // // start.steps = 40u;
-    // for (size_t step=0; step < 50; ++step)
-    // {
-    //     end.steps = step;
-    //     std::uint16_t min_steps_2 = get_shortest_path_bfs(comb_fields, end, start.pos);
-    //     std::cout << step  << " - " << min_steps_2 << std::endl;
-
-    // }
-
-    // too low: 801
+    // Intermediate step numbers: 269, 555, 825
     return min_steps;
 }
 std::uint16_t get_shortest_path_bfs(const std::vector<BlizzField> &fields, EState start, const Point<uint16_t> end)
@@ -119,11 +108,11 @@ std::uint16_t get_shortest_path_bfs(const std::vector<BlizzField> &fields, EStat
             // check end conditions
             if (cur_state.pos == end)
             {
-                return cur_state.steps - 1;
+                return cur_state.steps;
             }
             else // do another step in all possible directions (or wait)
             {
-                std::vector<Point<uint16_t>> succ = get_possible_successors(cur_state, fields.at(cur_state.steps%fields.size()));
+                std::vector<Point<uint16_t>> succ = get_possible_successors(cur_state, fields.at((cur_state.steps+1u)%fields.size()));
                 for (const auto &elem : succ)
                 {
                     EState new_state{ elem,cur_state.steps+1u };
@@ -200,7 +189,7 @@ std::vector<BlizzField> combine_fields(const CombFields& comb_fields)
     {
         if (x%num_vert_blizz == 0) break;
     }
-    std::cout << "Cyclic behaviour after " << x << " steps" << std::endl;
+    // std::cout << "Cyclic behaviour after " << x << " steps" << std::endl;
 
     // iterate through horizontal and vertical blizzards and create new combined one
     for (size_t i=0; i<x; ++i)
@@ -330,7 +319,7 @@ BlizzField do_blizzard_step(const BlizzField &field, bool is_vertical)
             if (col == 1 && (cur_f == B_LEFT || (cur_f == B_TWO && !is_vertical))) 
             {
                 new_field.at(row).at(cols-2) = B_LEFT;
-                if (cur_f == B_TWO) new_field.at(row).at(2) = B_RIGHT;
+                if (cur_f == B_TWO && !is_vertical) new_field.at(row).at(2) = B_RIGHT;
                 continue;
             }
             if (col == cols-2 && (cur_f == B_RIGHT || (cur_f == B_TWO && !is_vertical))) 
@@ -342,13 +331,21 @@ BlizzField do_blizzard_step(const BlizzField &field, bool is_vertical)
                     else throw std::runtime_error("Unknown field type at col=cols-2 found!");
                 }
 
-                if (cur_f == B_TWO) new_field.at(row).at(cols-3) = B_LEFT;
+                if (cur_f == B_TWO && !is_vertical) 
+                {
+                    if (new_field.at(row).at(cols-3) == B_RIGHT) new_field.at(row).at(cols-3) = B_TWO;
+                    else
+                    {
+                        if(new_field.at(row).at(cols-3) == B_FREE) new_field.at(row).at(cols-3) = B_LEFT;
+                        else throw std::runtime_error("Unknown field type at col=cols-3 found!");
+                    }
+                }
                 continue;
             }
             if (row == 1 && (cur_f == B_UP || (cur_f == B_TWO && is_vertical))) 
             {
                 new_field.at(rows-2).at(col) = B_UP;
-                if (cur_f == B_TWO) new_field.at(2).at(col) = B_DOWN;
+                if (cur_f == B_TWO && is_vertical) new_field.at(2).at(col) = B_DOWN;
                 continue;
             }
             if (row == rows-2 && (cur_f == B_DOWN || (cur_f == B_TWO && is_vertical))) 
@@ -359,7 +356,15 @@ BlizzField do_blizzard_step(const BlizzField &field, bool is_vertical)
                     if (new_field.at(1).at(col) == B_FREE) new_field.at(1).at(col) = B_DOWN;
                     else throw std::runtime_error("Unknown field type at row 1 found!");
                 }
-                if (cur_f == B_TWO) new_field.at(row-3).at(col) = B_UP;
+                if (cur_f == B_TWO && is_vertical) 
+                {
+                    if (new_field.at(rows-3).at(col) == B_DOWN) new_field.at(rows-3).at(col) = B_TWO; 
+                    else
+                    {
+                        if(new_field.at(rows-3).at(col) == B_FREE) new_field.at(rows-3).at(col) = B_UP;
+                        else throw std::runtime_error("Unknown field type at row=rows-3 found!");
+                    }
+                }
                 continue;
             }
 

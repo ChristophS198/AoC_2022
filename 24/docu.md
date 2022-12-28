@@ -1,16 +1,5 @@
 
-Advent of Code
-
-    [About][Events][Shop][Settings][Log Out]
-
-ChristophS198 47*
-   $year=2022;
-
-    [Calendar][AoC++][Sponsors][Leaderboard][Stats]
-
-Our sponsors help make Advent of Code possible:
-13|37 - Happy Holidays from all of us at 13|37 to all of you participating in Advent of Code '22!
---- Day 24: Blizzard Basin ---
+#Day 24: Blizzard Basin
 
 With everything replanted for next year (and with elephants and monkeys to tend the grove), you and the Elves leave for the extraction point.
 
@@ -285,4 +274,4 @@ In the above example, the first trip to the goal takes 18 minutes, the trip back
 
 What is the fewest number of minutes required to reach the goal, go back to the start, then reach the goal again?
 
-Answer: 
+Answer: **825**
