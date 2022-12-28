@@ -24,8 +24,8 @@
 // #include "20/20_sol.cpp"
 // #include "21/21_sol.cpp"
 // #include "22/22_sol.cpp"
-#include "23/23_sol.cpp"
-// #include "24/24_sol.cpp"
+// #include "23/23_sol.cpp"
+#include "24/24_sol.cpp"
 // #include "25/25_sol.cpp"
 
 int main(){
@@ -117,15 +117,15 @@ int main(){
     // Day 22
     std::cout << "Day 22_1: " << day_22_1("22/input.txt") << std::endl;
     std::cout << "Day 22_2: " << day_22_2("22/input.txt") << std::endl;
-*/
+
     // Day 23
     std::cout << "Day 23_1: " << day_23_1("23/input.txt") << std::endl;
     std::cout << "Day 23_2: " << day_23_2("23/input.txt") << std::endl;
-/*
+*/
     // Day 24
-    std::cout << "Day 24_1: " << day_24_1("24/input.txt") << std::endl;
+    // std::cout << "Day 24_1: " << day_24_1("24/input.txt") << std::endl;
     std::cout << "Day 24_2: " << day_24_2("24/input.txt") << std::endl;
-
+/*
     // Day 25
     std::cout << "Day 25_1: " << day_25_1("25/input.txt") << std::endl;
     std::cout << "Day 25_2: " << day_25_2("25/input.txt") << std::endl;

@@ -94,6 +94,7 @@ struct Point
     Point() : x{}, y{} {};
     bool operator<(const Point& other) const;
     bool operator==(const Point& other) const;
+    bool operator!=(const Point& other) const;
 };
 
 template<typename T>
@@ -114,6 +115,12 @@ template<typename T>
 bool Point<T>::operator==(const Point& other) const
 {
     return this->x == other.x && this->y == other.y;
+}
+
+template<typename T>
+bool Point<T>::operator!=(const Point& other) const
+{
+    return !(this->operator==(other));
 }
 
 template<typename T>
