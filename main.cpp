@@ -1,3 +1,9 @@
+/**
+ * Just uncomment the desired days and include the corresponding solution .cpp
+ * Build executable with e.g.: g++ main.cpp -std=c++17 -Wall -o main
+ * Afterwards execute main
+ * 
+ */
 #include <iostream>
 #include <vector>
 #include <string>
@@ -25,8 +31,8 @@
 // #include "21/21_sol.cpp"
 // #include "22/22_sol.cpp"
 // #include "23/23_sol.cpp"
-#include "24/24_sol.cpp"
-// #include "25/25_sol.cpp"
+// #include "24/24_sol.cpp"
+#include "25/25_sol.cpp"
 
 int main(){
 /*
@@ -121,15 +127,13 @@ int main(){
     // Day 23
     std::cout << "Day 23_1: " << day_23_1("23/input.txt") << std::endl;
     std::cout << "Day 23_2: " << day_23_2("23/input.txt") << std::endl;
-*/
+
     // Day 24
-    // std::cout << "Day 24_1: " << day_24_1("24/input.txt") << std::endl;
+    std::cout << "Day 24_1: " << day_24_1("24/input.txt") << std::endl;
     std::cout << "Day 24_2: " << day_24_2("24/input.txt") << std::endl;
-/*
+*/
     // Day 25
     std::cout << "Day 25_1: " << day_25_1("25/input.txt") << std::endl;
-    std::cout << "Day 25_2: " << day_25_2("25/input.txt") << std::endl;
 
-    */
     return 0;
 }
