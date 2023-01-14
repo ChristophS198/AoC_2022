@@ -23,8 +23,10 @@ bool does_overlap(const RockPts &rock, const Chamber &chamber);
 THeight set_stone(const RockPts &rock, Chamber &chamber, THeight max_height);
 void extend_chamber(const THeight new_height, const std::vector<char> level, Chamber &chamber);
 
-// Used to store whenever a new level consisting of 7 stones ('#######')
-// through this we can detect any cycles in the stone falls 
+// Used to store a snapshot of the chamber state after a stone is set
+// The members should allow us to detect any cycles in the stone falls
+// that is, if the same stone gets hit by the same jet and the highest 
+// level of the chamber are identical -> cyclic behaviour 
 struct Snapshot
 {
     uint64_t rock_idx;

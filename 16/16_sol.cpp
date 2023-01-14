@@ -9,10 +9,10 @@
 
 #include "../utility.h"
 
-// A fast solution would be to reduce the overall map to a smaller one only conatining the start valve
+// Idea is to reduce the overall map to a smaller one only conatining the start valve
 // + any valves with a flow_rate > 0. In order to incorporate the valves with no flow rate and the tunnels
 // we need to increase the distance between all remaining valves
-// Afterwards we get a smaller graph and could just calculate any combinations of opening the valves in all
+// Afterwards we get a smaller graph and only calculate any combinations of opening the valves in all
 // different orders
 
 
